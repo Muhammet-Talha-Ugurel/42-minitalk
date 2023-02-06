@@ -17,7 +17,7 @@
 # include<signal.h>
 # include<stdlib.h>
 
-int	ft_atoi(char *str);
+int		ft_atoi(char *str);
 void	ft_putstr_fd(char *str, int fd);
 void	ft_putnbr(int nb);
 

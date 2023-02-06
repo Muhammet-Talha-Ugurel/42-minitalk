@@ -28,11 +28,9 @@ $(CLIENT):
 	$(CC) $(CFLAGS) client.c $(LIB) -o $(CLIENT)
 
 clean:
-	make fclean -C ./ft_printf
+	rm -rf $(SERVER) $(CLIENT)
 
 fclean: clean
-	rm -rf $(SERVER)
-	rm -rf $(CLIENT)
 
 re: fclean all
 

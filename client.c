@@ -12,7 +12,17 @@
 
 #include "minitalk.h"
 
-void	send_signal(int signum, unsigned char *message)
+int	send_it(int signal, pid_t pid)
+{
+	if (kill(pid, signal) == -1)
+	{
+		ft_putstr_fd("ERROR\n", 1);
+		return (0);
+	}
+	return (1);
+}
+
+void	send(pid_t pid, unsigned char *message)
 {
 	int	i;
 	int	c;
@@ -25,12 +35,13 @@ void	send_signal(int signum, unsigned char *message)
 		{
 			if (message[c] / i)
 			{
-				kill(signum, SIGUSR1);
+				if (send_it(SIGUSR1, pid) == 0)
+					return ;
 				message[c] = message[c] % i;
 			}
-			else
-				kill(signum, SIGUSR2);
-			usleep(1000);
+			else if (send_it(SIGUSR2, pid) == 0)
+				return ;
+			usleep(5000);
 			i /= 2;
 		}
 		i = 128;
@@ -40,34 +51,33 @@ void	send_signal(int signum, unsigned char *message)
 
 void	feedback(int signum)
 {
-	static int	first_time = 1;
+	static int	flag = 1;
 
-	(void)signum;
-	if (first_time)
+	if (flag && signum == SIGUSR2)
 	{
-		ft_putstr_fd("Mesaj başarıyla gönderildi!\n", 1);
-		first_time = 0;
+		ft_putstr_fd("SUCESS!\n", 1);
+		flag = 0;
 	}
 }
 
 int	main(int ac, char **av)
 {
 	struct sigaction	signal;
-	pid_t					p_id;
-	int 					error;
+	pid_t				p_id;
+	int					error;
 
 	signal.sa_flags = SA_SIGINFO;
 	signal.sa_handler = feedback;
 	error = sigaction(SIGUSR2, &signal, 0);
-	if(error == -1)
-		ft_putstr_fd("Fuck\n", 1);
+	if (error == -1)
+		ft_putstr_fd("ERROR\n", 1);
 	if (ac == 3)
 	{
 		p_id = ft_atoi(av[1]);
-		send_signal(p_id, (unsigned char *)av[2]);
+		send(p_id, (unsigned char *)av[2]);
 	}
-	else if (ac == 3)
-		ft_putstr_fd("Message pid is missing", 1);
+	else if (ac == 2)
+		ft_putstr_fd("Message is missing", 1);
 	else
 		ft_putstr_fd("Server pid is missing", 1);
 	return (0);
